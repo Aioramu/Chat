@@ -1,0 +1,13 @@
+
+{% block content %}
+<form method="post" action="{% url 'chatting:sea' %}">
+  {% csrf_token %}
+
+    {{ form.as_p }}
+
+
+    <button type='submit'>Search!</button>
+</form>
+<a href="/chatting/{{token}}/">{{user}}</a>
+
+{% endblock %}
