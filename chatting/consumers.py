@@ -6,9 +6,10 @@ from .models import Chat,Message
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
+        print("conn")
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
-        chats=Chat.objects.all()
+
 
 
         # Join room group
@@ -18,6 +19,10 @@ class ChatConsumer(WebsocketConsumer):
         )
 
         self.accept()
+        self.all_mes()
+
+    def all_mes(self):
+        chats=Chat.objects.all()
         for chat in chats:
             if chat.token==self.room_name:
                 m=chat.message.all()
@@ -38,7 +43,10 @@ class ChatConsumer(WebsocketConsumer):
         text_data_json = json.loads(text_data)
 
         message = text_data_json['message']
-
+        chats=Chat.objects.all()
+        for chat in chats:
+            if chat.token==self.room_name:
+                chat.message.create(content=message)
         # Send message to room group
         async_to_sync(self.channel_layer.group_send)(
             self.room_group_name,
@@ -51,10 +59,6 @@ class ChatConsumer(WebsocketConsumer):
     # Receive message from room group
     def chat_message(self, event):
         message = event['message']
-        chats=Chat.objects.all()
-        for chat in chats:
-            if chat.token==self.room_name:
-                chat.message.create(content=message)
         # Send message to WebSocket
         self.send(text_data=json.dumps({
             'message': message
