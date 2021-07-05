@@ -19,9 +19,11 @@
             + roomName
             + '/'
         );
-
+        document.querySelector('#chat-log').value = ''
         chatSocket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
+            var data = JSON.parse(e.data);
+            console.log(data)
+
             document.querySelector('#chat-log').value += (data.message + '\n');
         };
 
